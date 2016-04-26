@@ -1,7 +1,8 @@
-package com.tma.afl1;
+package com.tma.afl2;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -20,7 +21,7 @@ public class RSA {
             q = generatePrime(primeLength, e, random);
 
             n = p.multiply(q);
-        } while (n.bitLength() == length);
+        } while (n.bitLength() != length);
 
         PublicKey pk = new PublicKey(n, e);
 
@@ -43,8 +44,7 @@ public class RSA {
         return p;
     }
 
-    public byte[] encrypt(String value) throws UnsupportedEncodingException {
-        byte[] bytes = value.getBytes("UTF-8");
+    public byte[] encrypt(byte[] bytes) {
         BigInteger asNumber = new BigInteger(1, bytes);
 
         assert asNumber.bitLength() <= pk.getN().bitLength();
@@ -53,11 +53,25 @@ public class RSA {
         return encrypted.toByteArray();
     }
 
-    public String decrypt(byte[] encrypted) throws UnsupportedEncodingException {
-        BigInteger asNumber = new BigInteger(encrypted);
+    public byte[] decrypt(byte[] encrypted) {
+        BigInteger asNumber = new BigInteger(1, encrypted);
         BigInteger result = asNumber.modPow(sk.getD(), sk.getN());
         byte[] bytes = result.toByteArray();
-        return new String(bytes, "UTF-8");
+        return bytes;
+    }
+
+    public byte[] sign(byte[] data) throws NoSuchAlgorithmException {
+        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+        byte[] hash = sha256.digest(data);
+        return decrypt(hash);
+    }
+
+    public boolean verify(byte[] data, byte[] signature) throws NoSuchAlgorithmException {
+        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+        byte[] hash = sha256.digest(data);
+        byte[] signedHash = encrypt(signature);
+
+        return new BigInteger(1, hash).equals(new BigInteger(signedHash));
     }
 }
 
