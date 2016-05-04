@@ -1,8 +1,9 @@
-package com.tma.afl2;
+package com.tma.afl3;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
-public class PublicKey {
+public class PublicKey implements Serializable{
     private BigInteger n;
     private BigInteger e;
 

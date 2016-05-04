@@ -1,4 +1,4 @@
-package com.tma.afl2;
+package com.tma.afl3;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -10,8 +10,15 @@ public class RSA {
     private PrivateKey sk;
     private PublicKey pk;
 
+    public RSA(PublicKey pk) {
+        this.pk = pk;
+    }
+
+    public RSA() {
+    }
+
     public void keyGen(int length) {
-        int primeLength = (int)Math.ceil(length / 2.0);
+        int primeLength = (int) Math.ceil(length / 2.0);
 
         BigInteger e = new BigInteger("3");
         Random random = new SecureRandom();
@@ -73,5 +80,10 @@ public class RSA {
 
         return new BigInteger(1, hash).equals(new BigInteger(signedHash));
     }
+
+    public PublicKey getPk() {
+        return pk;
+    }
+
 }
 
